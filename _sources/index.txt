@@ -1,0 +1,123 @@
+.. role:: strike
+
+:strike:`ROS3分クッキング` Gazebo on クラウド
+=============================================
+
+ROS Japan UG #11 LT大会
+
+by otamachan
+
+自己紹介
+--------
+
+* Name: Tamaki Nishino
+* ID: otamachan (Twitter: otamasan)
+* 愛知県在住サラリーマン
+* ROS歴は2年とちょっと
+
+LTの内容
+--------
+
+* Gazeboをクラウド上で動かしたい
+
+  * テスト
+  * いっぱいシミュレーション回す
+
+* ⇒ちょっとしたTipsの紹介
+
+材料
+----
+
+* Gazebo
+* Docker
+* クラウドサービス
+
+  * Amazon Web Service(:strike:`AWS Batch` Amazon ECSで)
+  * Google Cloud Platform(:strike:`GKE` で)
+  * Azure
+  * e.t.c.
+
+Amazon ECS vs GKE
+------------------
+
+* どちらもDockerコンテナをマネジードに実行する環境
+
+  * `Amazon ECS <https://aws.amazon.com/jp/ecs/>`_
+
+    * Amazon EC2 Container Service
+
+  * `GKE <https://cloud.google.com/container-engine/?hl=ja>`_
+
+    * Google Container Engine
+
+* どちらがよいかは用途/開発環境による
+
+Gazeboをクラウドで動かすTips
+-----------------------------
+
+1. ディスプレイが必要
+2. デバッグ方法
+3. イメージの肥大化を防ぐ
+4. インスタンス(VM)の管理
+
+ディスプレイが必要
+-------------------
+
+* カメラのシミュレーション等でOpenGLによる描画が必要
+* 必ずしもGPUが必要なわけではない
+* 対策
+
+  * xvfbで仮想ディスプレイを作る
+
+デバッグ方法
+------------
+
+* シミュレーションがうまく動かない/正しく動いているか知りたい
+* 対策
+
+  1. Docker化して手元でも同じものが動くように
+
+     docker-compose ⇔ ECS Task / GKE Pod
+     (だいたいうまくいかない)
+  2. rosbagで必要そうなデータを保存しておく
+  3. 画面キャプチャ(ffmpeg)
+  4. gzweb/roslibjsでアクセスできるようにする
+
+イメージの肥大化を防ぐ
+----------------------
+
+* イメージが肥大化してbuild/pullに時間がかかる
+* 対策
+
+  * 複数のコンテナで実行する
+
+インスタンス(VM)の管理
+----------------------
+
+* バッチ的なジョブを実行するのにインスタンス(VM)を常に実行しておくのはもったいない
+* スケーリングさせたい
+* 対策
+
+  1. AWS Batchを使う(1コンテナしか実行できない)
+  2. 自分でキューイング/スケーリングを書く
+
+* 何かよい方法があれば知りたいです・・・
+デモ(ローカル)
+--------------
+
+`docker-compose.yml <https://github.com/otamachan/lt-demo-1/blob/master/docker-compose.yml>`_
+
+:strike:`デモ(GKE)`
+--------------------
+
+KubernetesのJobの実行に挫折中・・・
+
+デモ(Amzon ECS)
+----------------
+
+`Amazon ECS <https://ap-northeast-1.console.aws.amazon.com/ecs/home?region=ap-northeast-1#/clusters/default/tasks>`_
+
+まとめ
+------
+
+* Enjoy happy ROS/Gazebo life with Cloud!

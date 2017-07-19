@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+
+
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>ROS3分クッキング Gazebo on クラウド &mdash; slide 0.1.0 ドキュメント</title>
+    
+    <link rel="stylesheet" href="_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/styles.css" type="text/css" />
+    <link rel="stylesheet" href="_static/single.css" type="text/css" />
+    
+    <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+    
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/translations.js"></script>
+    <script type="text/javascript" src="_static/common.js"></script>
+    
+    <script type="text/javascript" src="_static/slides.js"></script>
+    <script type="text/javascript" src="_static/sync.js"></script>
+    <script type="text/javascript" src="_static/controller.js"></script>
+    <script type="text/javascript" src="_static/init.js"></script>
+    
+    
+    <link rel="top" title="slide 0.1.0 ドキュメント" href="#" /> 
+  </head>
+  <body>
+
+<section
+   id="slide_container"
+   class='slides layout-regular'>
+
+
+  
+<article class="slide level-1" id="ros3-gazebo-on">
+
+<h1><span class="strike">ROS3分クッキング</span> Gazebo on クラウド</h1>
+
+<p>ROS Japan UG #11 LT大会</p>
+<p>by otamachan</p>
+
+
+
+<div class="slide-no">1</div>
+
+
+</article>
+<article class="slide level-2" id="id1">
+
+<h2>自己紹介</h2>
+
+<ul class="simple">
+<li>Name: Tamaki Nishino</li>
+<li>ID: otamachan (Twitter: otamasan)</li>
+<li>愛知県在住サラリーマン</li>
+<li>ROS歴は2年とちょっと</li>
+</ul>
+
+
+
+<div class="slide-no">2</div>
+
+
+</article>
+<article class="slide level-2" id="lt">
+
+<h2>LTの内容</h2>
+
+<ul class="simple">
+<li>Gazeboをクラウド上で動かしたい<ul>
+<li>テスト</li>
+<li>いっぱいシミュレーション回す</li>
+</ul>
+</li>
+<li>⇒ちょっとしたTipsの紹介</li>
+</ul>
+
+
+
+<div class="slide-no">3</div>
+
+
+</article>
+<article class="slide level-2" id="id2">
+
+<h2>材料</h2>
+
+<ul class="simple">
+<li>Gazebo</li>
+<li>Docker</li>
+<li>クラウドサービス<ul>
+<li>Amazon Web Service(<span class="strike">AWS Batch</span> Amazon ECSで)</li>
+<li>Google Cloud Platform(<span class="strike">GKE</span> で)</li>
+<li>Azure</li>
+<li>e.t.c.</li>
+</ul>
+</li>
+</ul>
+
+
+
+<div class="slide-no">4</div>
+
+
+</article>
+<article class="slide level-2" id="amazon-ecs-vs-gke">
+
+<h2>Amazon ECS vs GKE</h2>
+
+<ul class="simple">
+<li>どちらもDockerコンテナをマネジードに実行する環境<ul>
+<li><a class="reference external" href="https://aws.amazon.com/jp/ecs/">Amazon ECS</a><ul>
+<li>Amazon EC2 Container Service</li>
+</ul>
+</li>
+<li><a class="reference external" href="https://cloud.google.com/container-engine/?hl=ja">GKE</a><ul>
+<li>Google Container Engine</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>どちらがよいかは用途/開発環境による</li>
+</ul>
+
+
+
+<div class="slide-no">5</div>
+
+
+</article>
+<article class="slide level-2" id="gazebotips">
+
+<h2>Gazeboをクラウドで動かすTips</h2>
+
+<ol class="arabic simple">
+<li>ディスプレイが必要</li>
+<li>デバッグ方法</li>
+<li>イメージの肥大化を防ぐ</li>
+<li>インスタンス(VM)の管理</li>
+</ol>
+
+
+
+<div class="slide-no">6</div>
+
+
+</article>
+<article class="slide level-2" id="id3">
+
+<h2>ディスプレイが必要</h2>
+
+<ul class="simple">
+<li>カメラのシミュレーション等でOpenGLによる描画が必要</li>
+<li>必ずしもGPUが必要なわけではない</li>
+<li>対策<ul>
+<li>xvfbで仮想ディスプレイを作る</li>
+</ul>
+</li>
+</ul>
+
+
+
+<div class="slide-no">7</div>
+
+
+</article>
+<article class="slide level-2" id="id4">
+
+<h2>デバッグ方法</h2>
+
+<ul>
+<li><p class="first">シミュレーションがうまく動かない/正しく動いているか知りたい</p>
+</li>
+<li><p class="first">対策</p>
+<ol class="arabic">
+<li><p class="first">Docker化して手元でも同じものが動くように</p>
+<p>docker-compose ⇔ ECS Task / GKE Pod
+(だいたいうまくいかない)</p>
+</li>
+<li><p class="first">rosbagで必要そうなデータを保存しておく</p>
+</li>
+<li><p class="first">画面キャプチャ(ffmpeg)</p>
+</li>
+<li><p class="first">gzweb/roslibjsでアクセスできるようにする</p>
+</li>
+</ol>
+</li>
+</ul>
+
+
+
+<div class="slide-no">8</div>
+
+
+</article>
+<article class="slide level-2" id="id5">
+
+<h2>イメージの肥大化を防ぐ</h2>
+
+<ul class="simple">
+<li>イメージが肥大化してbuild/pullに時間がかかる</li>
+<li>対策<ul>
+<li>複数のコンテナで実行する</li>
+</ul>
+</li>
+</ul>
+
+
+
+<div class="slide-no">9</div>
+
+
+</article>
+<article class="slide level-2" id="vm">
+
+<h2>インスタンス(VM)の管理</h2>
+
+<ul class="simple">
+<li>バッチ的なジョブを実行するのにインスタンス(VM)を常に実行しておくのはもったいない</li>
+<li>スケーリングさせたい</li>
+<li>対策<ol class="arabic">
+<li>AWS Batchを使う(1コンテナしか実行できない)</li>
+<li>自分でキューイング/スケーリングを書く</li>
+</ol>
+</li>
+<li>何かよい方法があれば知りたいです・・・</li>
+</ul>
+
+
+
+<div class="slide-no">10</div>
+
+
+</article>
+<article class="slide level-2" id="id6">
+
+<h2>デモ(ローカル)</h2>
+
+<p><a class="reference external" href="https://github.com/otamachan/lt-demo-1/blob/master/docker-compose.yml">docker-compose.yml</a></p>
+
+
+
+<div class="slide-no">11</div>
+
+
+</article>
+<article class="slide level-2" id="id7">
+
+<h2><span class="strike">デモ(GKE)</span></h2>
+
+<p>KubernetesのJobの実行に挫折中・・・</p>
+
+
+
+<div class="slide-no">12</div>
+
+
+</article>
+<article class="slide level-2" id="amzon-ecs">
+
+<h2>デモ(Amzon ECS)</h2>
+
+<p><a class="reference external" href="https://ap-northeast-1.console.aws.amazon.com/ecs/home?region=ap-northeast-1#/clusters/default/tasks">Amazon ECS</a></p>
+
+
+
+<div class="slide-no">13</div>
+
+
+</article>
+<article class="slide level-2" id="id9">
+
+<h2>まとめ</h2>
+
+<ul class="simple">
+<li>Enjoy happy ROS/Gazebo life with Cloud!</li>
+</ul>
+
+
+
+<div class="slide-no">14</div>
+
+
+</article>
+
+</section>
+
+<section id="slide_notes">
+
+</section>
+
+  </body>
+</html>
